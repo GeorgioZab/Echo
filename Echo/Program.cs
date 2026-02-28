@@ -1,6 +1,7 @@
 using Echo.Application.Interfaces;
 using Echo.Application.Users.Commands;
 using Echo.Infrastructure.Persistence;
+using Echo.Infrastructure.Authentication;
 using Microsoft.EntityFrameworkCore;
 
 namespace Echo
@@ -22,11 +23,14 @@ namespace Echo
             builder.Services.AddDbContext<EchoDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            // 4. ИСПРАВЛЕНИЕ ОШИБКИ: Связываем интерфейс с контекстом БД
+            // 4. Связываем интерфейс с контекстом БД
             builder.Services.AddScoped<IEchoDbContext>(provider => provider.GetRequiredService<EchoDbContext>());
 
             // 5. Подключаем MediatR
             builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(RegisterUserCommand).Assembly));
+
+            // 6. Подключам JWT
+            builder.Services.AddScoped<IJwtProvider, JwtProvider>();
 
             var app = builder.Build();
 

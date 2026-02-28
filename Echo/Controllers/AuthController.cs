@@ -1,4 +1,5 @@
 ﻿using Echo.Application.Users.Commands;
+using Echo.Application.Users.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,6 +27,24 @@ public class AuthController : ControllerBase
         catch (Exception ex)
         {
             return BadRequest(new { Error = ex.Message });
+        }
+    }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginUserQuery query)
+    {
+        try
+        {
+            // Отправляем запрос через MediatR
+            var token = await _mediator.Send(query);
+
+            // Возвращаем токен клиенту
+            return Ok(new { Token = token, Message = "Успешный вход!" });
+        }
+        catch (Exception ex)
+        {
+            // Если пароль неверный или юзера нет
+            return Unauthorized(new { Error = ex.Message });
         }
     }
 }
