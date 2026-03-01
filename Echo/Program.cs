@@ -1,8 +1,13 @@
+using Echo.Api.Services;
 using Echo.Application.Interfaces;
 using Echo.Application.Users.Commands;
-using Echo.Infrastructure.Persistence;
 using Echo.Infrastructure.Authentication;
+using Echo.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
+using System.Text;
 
 namespace Echo
 {
@@ -32,6 +37,27 @@ namespace Echo
             // 6. Подключам JWT
             builder.Services.AddScoped<IJwtProvider, JwtProvider>();
 
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidIssuer = builder.Configuration["JwtOptions:Issuer"],
+                        ValidateAudience = true,
+                        ValidAudience = builder.Configuration["JwtOptions:Audience"],
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(builder.Configuration["JwtOptions:SecretKey"]!))
+                    };
+                });
+
+            builder.Services.AddAuthorization();
+
+            builder.Services.AddHttpContextAccessor(); // Включаем доступ к HTTP-контексту
+            builder.Services.AddScoped<ICurrentUserService, CurrentUserService>(); // Регистрируем наш сервис
+
             var app = builder.Build();
 
             // 6. Включаем Swagger только для режима разработки
@@ -43,6 +69,7 @@ namespace Echo
 
             // app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();

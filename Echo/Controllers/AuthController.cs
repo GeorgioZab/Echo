@@ -1,6 +1,7 @@
 ﻿using Echo.Application.Users.Commands;
 using Echo.Application.Users.Queries;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Echo.Api.Controllers;
@@ -46,5 +47,13 @@ public class AuthController : ControllerBase
             // Если пароль неверный или юзера нет
             return Unauthorized(new { Error = ex.Message });
         }
+    }
+
+    [Authorize]
+    [HttpGet("secret")]
+    public IActionResult GetSecretData()
+    {
+        // Этот код выполнится если пользователь передал правильный токен
+        return Ok(new { Message = "Доступ разрешен! Ты находишься в секретной зоне." });
     }
 }

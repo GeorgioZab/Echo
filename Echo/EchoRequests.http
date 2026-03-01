@@ -1,0 +1,33 @@
+@HostAddress = http://localhost:5005 
+# ВНИМАНИЕ: Замени 5005 на СВОЙ порт, на котором запускается проект!
+
+### 1. Логин (Получаем токен)
+POST {{HostAddress}}/api/Auth/login
+Content-Type: application/json
+
+{
+  "username": "Gosha",
+  "password": "SuperSecretPassword123"
+}
+
+### 2. Запрос БЕЗ токена (Должен выдать ошибку 401 Unauthorized)
+GET {{HostAddress}}/api/Auth/secret
+
+### 3. Запрос С токеном (Должен пустить!)
+# Сюда вставь длинный токен, который получишь из первого запроса
+GET {{HostAddress}}/api/Auth/secret
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZjIxZDAwYi1hMjVlLTQ2NWMtOTFkYy1hM2QwNTY3ODIyZDUiLCJuYW1lIjoiR29zaGEiLCJleHAiOjE3NzIzNzEwNDMsImlzcyI6IkVjaG9BcGkiLCJhdWQiOiJFY2hvRnJvbnRlbmQifQ.ZoTkO0kOYl58n4DNjxFhm2YFuBicWkgk5Eyx0s6U2Jw
+
+### 4. Создаем новый Групповой Чат
+POST {{HostAddress}}/api/Chat
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZjIxZDAwYi1hMjVlLTQ2NWMtOTFkYy1hM2QwNTY3ODIyZDUiLCJuYW1lIjoiR29zaGEiLCJleHAiOjE3NzIzNzEwNDMsImlzcyI6IkVjaG9BcGkiLCJhdWQiOiJFY2hvRnJvbnRlbmQifQ.ZoTkO0kOYl58n4DNjxFhm2YFuBicWkgk5Eyx0s6U2Jw
+
+{
+  "title": "Секретная группа для курсача",
+  "isGroup": true
+}
+
+### 5. Получить список МОИХ чатов
+GET {{HostAddress}}/api/Chat
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZjIxZDAwYi1hMjVlLTQ2NWMtOTFkYy1hM2QwNTY3ODIyZDUiLCJuYW1lIjoiR29zaGEiLCJleHAiOjE3NzIzNzE1MTgsImlzcyI6IkVjaG9BcGkiLCJhdWQiOiJFY2hvRnJvbnRlbmQifQ.nXtTy0qB76wF_9i-e5XyAmHNOgEJP-MeufLO-NXgJzU
