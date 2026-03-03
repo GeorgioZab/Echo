@@ -5,4 +5,5 @@ public record MessageDto(
     Guid SenderId,
     string SenderName,
     string Content,
-    DateTime SentAt);
+    DateTime SentAt,
+    Guid ChatId);

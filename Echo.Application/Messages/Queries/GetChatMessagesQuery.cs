@@ -37,7 +37,8 @@ public class GetChatMessagesQueryHandler : IRequestHandler<GetChatMessagesQuery,
                 m.SenderId,
                 m.Sender.Username,
                 m.Content,
-                m.SentAt))
+                m.SentAt,
+                m.ChatId))
             .ToListAsync(cancellationToken);
 
         return messages;

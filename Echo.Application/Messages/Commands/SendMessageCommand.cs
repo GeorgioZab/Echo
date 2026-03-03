@@ -63,7 +63,8 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Gui
             userId,
             sender.Username,
             message.Content,
-            message.SentAt);
+            message.SentAt,
+            message.ChatId);
 
         // 6. ОТправление уведомления всем участникам чата в реальном времени
         await _notificationService.NotifyNewMessage(request.ChatId, messageDto);

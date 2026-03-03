@@ -32,4 +32,19 @@ public class ChatController : ControllerBase
         var chatId = await _mediator.Send(command);
         return Ok(new { ChatId = chatId, Message = "Чат успешно создан!" });
     }
+
+    [HttpPost("add-member")]
+    public async Task<IActionResult> AddMember([FromBody] AddMemberCommand command)
+    {
+        try
+        {
+            // Вызываем команду добавления участника
+            await _mediator.Send(command);
+            return Ok(new { Message = "Пользователь успешно добавлен в чат!" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Error = ex.Message });
+        }
+    }
 }
