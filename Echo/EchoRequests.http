@@ -30,4 +30,18 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZjIxZDAwY
 
 ### 5. Получить список МОИХ чатов
 GET {{HostAddress}}/api/Chat
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZjIxZDAwYi1hMjVlLTQ2NWMtOTFkYy1hM2QwNTY3ODIyZDUiLCJuYW1lIjoiR29zaGEiLCJleHAiOjE3NzIzNzE1MTgsImlzcyI6IkVjaG9BcGkiLCJhdWQiOiJFY2hvRnJvbnRlbmQifQ.nXtTy0qB76wF_9i-e5XyAmHNOgEJP-MeufLO-NXgJzU
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZjIxZDAwYi1hMjVlLTQ2NWMtOTFkYy1hM2QwNTY3ODIyZDUiLCJuYW1lIjoiR29zaGEiLCJleHAiOjE3NzI1MTM1NTYsImlzcyI6IkVjaG9BcGkiLCJhdWQiOiJFY2hvRnJvbnRlbmQifQ.ivlm557NoR1wsnhTso_Pya4OT3Co6CpeBEn4rp2XgsE
+
+### 6. Отправить сообщение в чат
+POST {{HostAddress}}/api/Message
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZjIxZDAwYi1hMjVlLTQ2NWMtOTFkYy1hM2QwNTY3ODIyZDUiLCJuYW1lIjoiR29zaGEiLCJleHAiOjE3NzI1MTM1NTYsImlzcyI6IkVjaG9BcGkiLCJhdWQiOiJFY2hvRnJvbnRlbmQifQ.ivlm557NoR1wsnhTso_Pya4OT3Co6CpeBEn4rp2XgsE
+
+{
+  "chatId": "a1092c70-ece5-4719-a1c6-465aa3a14ac2",
+  "content": "Привет! Это мое первое сообщение через API"
+}
+
+### 7. Получить историю сообщений
+GET {{HostAddress}}/api/Message/a1092c70-ece5-4719-a1c6-465aa3a14ac2
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZjIxZDAwYi1hMjVlLTQ2NWMtOTFkYy1hM2QwNTY3ODIyZDUiLCJuYW1lIjoiR29zaGEiLCJleHAiOjE3NzI1MTM1NTYsImlzcyI6IkVjaG9BcGkiLCJhdWQiOiJFY2hvRnJvbnRlbmQifQ.ivlm557NoR1wsnhTso_Pya4OT3Co6CpeBEn4rp2XgsE

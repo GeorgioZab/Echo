@@ -1,3 +1,4 @@
+using Echo.Api.Hubs;
 using Echo.Api.Services;
 using Echo.Application.Interfaces;
 using Echo.Application.Users.Commands;
@@ -19,6 +20,8 @@ namespace Echo
 
             // 1. Включаем поддержку контроллеров
             builder.Services.AddControllers();
+
+            builder.Services.AddSignalR();
 
             // 2. Включаем Swagger
             builder.Services.AddEndpointsApiExplorer();
@@ -56,7 +59,19 @@ namespace Echo
             builder.Services.AddAuthorization();
 
             builder.Services.AddHttpContextAccessor(); // Включаем доступ к HTTP-контексту
-            builder.Services.AddScoped<ICurrentUserService, CurrentUserService>(); // Регистрируем наш сервис
+            builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+            builder.Services.AddScoped<IMessageNotificationService, MessageNotificationService>();
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowReactApp", policy =>
+                {
+                    policy.WithOrigins("http://localhost:3000")
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials();
+                });
+            });
 
             var app = builder.Build();
 
@@ -69,9 +84,12 @@ namespace Echo
 
             // app.UseHttpsRedirection();
 
+            app.UseCors("AllowReactApp");
+
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.MapHub<ChatHub>("/chatHub");
             app.MapControllers();
 
             app.Run();
