@@ -13,15 +13,18 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Gui
     private readonly IEchoDbContext _context;
     private readonly ICurrentUserService _currentUserService;
     private readonly IMessageNotificationService _notificationService;
+    private readonly IContentModerationService _moderationService;
 
     public SendMessageCommandHandler(
         IEchoDbContext context,
         ICurrentUserService currentUserService,
-        IMessageNotificationService notificationService)
+        IMessageNotificationService notificationService,
+        IContentModerationService moderationService)
     {
         _context = context;
         _currentUserService = currentUserService;
         _notificationService = notificationService;
+        _moderationService = moderationService;
     }
 
     public async Task<Guid> Handle(SendMessageCommand request, CancellationToken cancellationToken)
@@ -37,6 +40,8 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Gui
             throw new UnauthorizedAccessException("Вы не состоите в этом чате!");
         }
 
+        bool isToxic = _moderationService.IsToxic(request.Content);
+
         // 2. Создание сообщения
         var message = new Message
         {
@@ -45,19 +50,32 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Gui
             SenderId = userId,
             Content = request.Content,
             SentAt = DateTime.UtcNow,
-            IsFlaggedByML = false
+            IsFlaggedByML = isToxic // Ставим флаг на основе анализа ML
         };
 
         _context.Messages.Add(message);
 
-        // 3. Сохранение в базу
+        // 3. Создание алерта для админа (если ML пометил сообщение)
+        if (isToxic)
+        {
+            var alert = new AdminAlert
+            {
+                Id = Guid.NewGuid(),
+                MessageId = message.Id,
+                Reason = "Подозрение на запрещенный контент",
+                IsResolved = false
+            };
+            _context.AdminAlerts.Add(alert);
+        }
+
+        // 4. Сохранение в базу
         await _context.SaveChangesAsync(cancellationToken);
 
-        // 4. Получаем данные отправителя
+        // 5. Получаем данные отправителя
         var sender = await _context.Users
             .FirstAsync(u => u.Id == userId, cancellationToken);
 
-        // 5. Формируем DTO для отправки
+        // 6. Формируем DTO для отправки
         var messageDto = new MessageDto(
             message.Id,
             userId,
@@ -66,7 +84,7 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Gui
             message.SentAt,
             message.ChatId);
 
-        // 6. ОТправление уведомления всем участникам чата в реальном времени
+        // 7. Отправка уведомления всем участникам чата в реальном времени
         await _notificationService.NotifyNewMessage(request.ChatId, messageDto);
 
         return message.Id;

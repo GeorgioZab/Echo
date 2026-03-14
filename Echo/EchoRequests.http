@@ -45,3 +45,17 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZjIxZDAwY
 ### 7. Получить историю сообщений
 GET {{HostAddress}}/api/Message/a1092c70-ece5-4719-a1c6-465aa3a14ac2
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZjIxZDAwYi1hMjVlLTQ2NWMtOTFkYy1hM2QwNTY3ODIyZDUiLCJuYW1lIjoiR29zaGEiLCJleHAiOjE3NzI1MTM1NTYsImlzcyI6IkVjaG9BcGkiLCJhdWQiOiJFY2hvRnJvbnRlbmQifQ.ivlm557NoR1wsnhTso_Pya4OT3Co6CpeBEn4rp2XgsE
+
+### 8. Получить список алертов от нейросети (Админка)
+GET {{HostAddress}}/api/Admin/alerts
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZjIxZDAwYi1hMjVlLTQ2NWMtOTFkYy1hM2QwNTY3ODIyZDUiLCJuYW1lIjoiR29zaGEiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImV4cCI6MTc3MzQzMjQ4MCwiaXNzIjoiRWNob0FwaSIsImF1ZCI6IkVjaG9Gcm9udGVuZCJ9.OCZRHw3pwjiF1wIimbe92s6nzVH6eCZCCWH7DDwou-A
+
+### 9. Решить алерт (Затереть плохое сообщение)
+POST {{HostAddress}}/api/Admin/resolve
+Content-Type: application/json
+Authorization: Bearer ТВОЙ_ТОКЕН_СЮДА
+
+{
+  "alertId": "ВСТАВЬ_СЮДА_ID_АЛЕРТА_ИЗ_ЗАПРОСА_ВЫШЕ",
+  "deleteMessage": true
+}

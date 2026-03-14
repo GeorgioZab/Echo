@@ -3,11 +3,14 @@ using Echo.Api.Services;
 using Echo.Application.Interfaces;
 using Echo.Application.Users.Commands;
 using Echo.Infrastructure.Authentication;
+using Echo.Infrastructure.ML;
 using Echo.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 
 namespace Echo
@@ -17,6 +20,8 @@ namespace Echo
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
             // 1. Включаем поддержку контроллеров
             builder.Services.AddControllers();
@@ -52,15 +57,20 @@ namespace Echo
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(builder.Configuration["JwtOptions:SecretKey"]!))
+                            Encoding.UTF8.GetBytes(builder.Configuration["JwtOptions:SecretKey"]!)),
+                        RoleClaimType = ClaimTypes.Role
                     };
                 });
 
-            builder.Services.AddAuthorization();
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+            });
 
             builder.Services.AddHttpContextAccessor(); // Включаем доступ к HTTP-контексту
             builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
             builder.Services.AddScoped<IMessageNotificationService, MessageNotificationService>();
+            builder.Services.AddSingleton<IContentModerationService, ContentModerationService>();
 
             builder.Services.AddCors(options =>
             {

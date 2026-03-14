@@ -29,7 +29,8 @@ public class JwtProvider : IJwtProvider
         var claims = new[]
         {
             new Claim(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Name, user.Username)
+            new Claim(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Name, user.Username),
+            new Claim(ClaimTypes.Role, user.Role.ToString())
         };
 
         // 3. Создаем ключ подписи
