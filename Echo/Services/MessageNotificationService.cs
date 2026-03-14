@@ -16,7 +16,6 @@ public class MessageNotificationService : IMessageNotificationService
 
     public async Task NotifyNewMessage(Guid chatId, MessageDto message)
     {
-        // Отправляем сообщение всем, кто находится в группе с именем chatId
         await _hubContext.Clients.Group(chatId.ToString())
             .SendAsync("ReceiveMessage", message);
     }

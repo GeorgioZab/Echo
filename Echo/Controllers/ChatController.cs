@@ -21,7 +21,6 @@ public class ChatController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetMyChats()
     {
-        // Отправляем пустой запрос GetMyChatsQuery
         var chats = await _mediator.Send(new GetMyChatsQuery());
         return Ok(chats);
     }
@@ -38,7 +37,6 @@ public class ChatController : ControllerBase
     {
         try
         {
-            // Вызываем команду добавления участника
             await _mediator.Send(command);
             return Ok(new { Message = "Пользователь успешно добавлен в чат!" });
         }
@@ -46,5 +44,34 @@ public class ChatController : ControllerBase
         {
             return BadRequest(new { Error = ex.Message });
         }
+    }
+
+    [HttpDelete("{chatId}/member/{userId}")]
+    [Authorize]
+    public async Task<IActionResult> RemoveMember(Guid chatId, Guid userId)
+    {
+        try
+        {
+            await _mediator.Send(new RemoveMemberCommand(chatId, userId));
+            return Ok(new { Message = "Пользователь удален из чата" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Error = ex.Message });
+        }
+    }
+
+    [HttpGet("{chatId}/members")]
+    public async Task<IActionResult> GetMembers(Guid chatId)
+    {
+        var members = await _mediator.Send(new GetChatMembersQuery(chatId));
+        return Ok(members);
+    }
+
+    [HttpPost("private")]
+    public async Task<IActionResult> CreatePrivate([FromBody] CreatePrivateChatCommand command)
+    {
+        var id = await _mediator.Send(command);
+        return Ok(new { ChatId = id });
     }
 }

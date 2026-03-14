@@ -16,7 +16,6 @@ public class AddMemberCommandHandler : IRequestHandler<AddMemberCommand, bool>
 
     public async Task<bool> Handle(AddMemberCommand request, CancellationToken cancellationToken)
     {
-        // Проверяем, не в чате ли он уже
         var exists = await _context.ChatMembers
             .AnyAsync(cm => cm.ChatId == request.ChatId && cm.UserId == request.UserId);
 

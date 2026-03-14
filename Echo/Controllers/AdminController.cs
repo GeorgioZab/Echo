@@ -1,5 +1,6 @@
 ﻿using Echo.Application.Admin.Commands;
 using Echo.Application.Admin.Queries;
+using Echo.Application.Users.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -28,5 +29,26 @@ public class AdminController : ControllerBase
         var result = await _mediator.Send(command);
         if (!result) return NotFound("Алерт не найден");
         return Ok(new { Message = "Алерт обработан" });
+    }
+
+    [HttpPost("set-admin")]
+    public async Task<IActionResult> SetAdminRole([FromBody] SetAdminRoleCommand command)
+    {
+        try
+        {
+            await _mediator.Send(command);
+            return Ok(new { Message = "Пользователь успешно назначен администратором!" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Error = ex.Message });
+        }
+    }
+
+    [HttpPost("change-role")]
+    public async Task<IActionResult> ChangeRole([FromBody] ChangeUserRoleCommand command)
+    {
+        await _mediator.Send(command);
+        return Ok();
     }
 }

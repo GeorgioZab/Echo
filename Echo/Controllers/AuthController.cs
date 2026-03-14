@@ -35,16 +35,13 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginUserQuery query)
     {
         try
-        {
-            // Отправляем запрос через MediatR
+        {          
             var token = await _mediator.Send(query);
 
-            // Возвращаем токен клиенту
             return Ok(new { Token = token, Message = "Успешный вход!" });
         }
         catch (Exception ex)
         {
-            // Если пароль неверный или юзера нет
             return Unauthorized(new { Error = ex.Message });
         }
     }
@@ -53,7 +50,6 @@ public class AuthController : ControllerBase
     [HttpGet("secret")]
     public IActionResult GetSecretData()
     {
-        // Этот код выполнится если пользователь передал правильный токен
         return Ok(new { Message = "Доступ разрешен! Ты находишься в секретной зоне." });
     }
 }

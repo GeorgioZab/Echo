@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Echo.Application.Users.Queries;
 
-public record UserDto(Guid Id, string Username);
+public record UserDto(Guid Id, string Username, string Role);
 
 public record SearchUsersQuery(string SearchTerm) : IRequest<List<UserDto>>;
 
@@ -21,7 +21,7 @@ public class SearchUsersQueryHandler : IRequestHandler<SearchUsersQuery, List<Us
         return await _context.Users
             .Where(u => u.Username.Contains(request.SearchTerm))
             .Take(10)
-            .Select(u => new UserDto(u.Id, u.Username))
+            .Select(u => new UserDto(u.Id, u.Username, u.Role.ToString()))
             .ToListAsync(cancellationToken);
     }
 }

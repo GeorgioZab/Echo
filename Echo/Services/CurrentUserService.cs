@@ -16,7 +16,6 @@ public class CurrentUserService : ICurrentUserService
     {
         get
         {
-            // Достаем ID из токена текущего запроса
             var id = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
             return id != null ? Guid.Parse(id) : Guid.Empty;
         }

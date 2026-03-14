@@ -17,7 +17,6 @@ public class UserController : ControllerBase
         _mediator = mediator;
     }
 
-    // GET: api/User/search
     [HttpGet("search")]
     public async Task<IActionResult> Search([FromQuery] string term)
     {
@@ -30,5 +29,12 @@ public class UserController : ControllerBase
         {
             return BadRequest(new { Error = ex.Message });
         }
+    }
+
+    [HttpPatch("profile")]
+    public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileCommand command)
+    {
+        await _mediator.Send(command);
+        return Ok();
     }
 }
