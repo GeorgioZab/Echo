@@ -37,4 +37,17 @@ public class UserController : ControllerBase
         await _mediator.Send(command);
         return Ok();
     }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetProfile(Guid id)
+    {
+        var userProfile = await _mediator.Send(new GetProfileQuery(id));
+
+        if (userProfile == null)
+        {
+            return NotFound(new { Error = "Пользователь не найден" });
+        }
+
+        return Ok(userProfile);
+    }
 }

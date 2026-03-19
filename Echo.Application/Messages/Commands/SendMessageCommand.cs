@@ -71,20 +71,18 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Gui
         // 4. Сохранение в базу
         await _context.SaveChangesAsync(cancellationToken);
 
-        // 5. Получаем данные отправителя
         var sender = await _context.Users
             .FirstAsync(u => u.Id == userId, cancellationToken);
 
-        // 6. Формируем DTO для отправки
         var messageDto = new MessageDto(
             message.Id,
             userId,
             sender.Username,
             message.Content,
             message.SentAt,
-            message.ChatId);
+            message.ChatId,
+            message.ImageUrl);
 
-        // 7. Отправка уведомления всем участникам чата в реальном времени
         await _notificationService.NotifyNewMessage(request.ChatId, messageDto);
 
         return message.Id;

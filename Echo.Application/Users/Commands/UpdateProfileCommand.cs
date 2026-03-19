@@ -1,7 +1,7 @@
 ﻿using Echo.Application.Interfaces;
 using MediatR;
 
-public record UpdateProfileCommand(string? AvatarUrl, string? Username) : IRequest<bool>;
+public record UpdateProfileCommand(string? AvatarUrl, string? Username, string? Bio) : IRequest<bool>;
 
 public class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand, bool>
 {
@@ -21,6 +21,7 @@ public class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand,
 
         if (!string.IsNullOrEmpty(request.Username)) user.Username = request.Username;
         user.AvatarUrl = request.AvatarUrl;
+        user.Bio = request.Bio;
 
         await _context.SaveChangesAsync(cancellationToken);
         return true;

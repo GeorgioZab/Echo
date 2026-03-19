@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Echo.Application.Chats.Queries;
 
-// Запрос не принимает параметров, так как UserId берется из токена
 public record GetMyChatsQuery() : IRequest<List<ChatDto>>;
 
 public class GetMyChatsQueryHandler : IRequestHandler<GetMyChatsQuery, List<ChatDto>>
@@ -24,12 +23,16 @@ public class GetMyChatsQueryHandler : IRequestHandler<GetMyChatsQuery, List<Chat
 
         var chats = await _context.ChatMembers
             .Where(cm => cm.UserId == userId)
-            .Select(cm => cm.Chat)
-            .Select(c => new ChatDto(
-                c.Id,
-                c.Title,
-                c.IsGroup,
-                c.AvatarUrl))
+            .Select(cm => new ChatDto(
+                cm.ChatId,
+                cm.Chat.IsGroup ? cm.Chat.Title : _context.ChatMembers
+                    .Where(other => other.ChatId == cm.ChatId && other.UserId != userId)
+                    .Select(other => other.User.Username).FirstOrDefault(),
+                cm.Chat.IsGroup,
+                cm.Chat.IsGroup ? cm.Chat.AvatarUrl : _context.ChatMembers
+                    .Where(other => other.ChatId == cm.ChatId && other.UserId != userId)
+                    .Select(other => other.User.AvatarUrl).FirstOrDefault()
+            ))
             .ToListAsync(cancellationToken);
 
         return chats;

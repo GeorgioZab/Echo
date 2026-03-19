@@ -4,6 +4,7 @@
     public Guid ChatId { get; set; }
     public Guid SenderId { get; set; }
     public string Content { get; set; } = string.Empty;
+    public string? ImageUrl { get; set; }
     public DateTime SentAt { get; set; }
     public bool IsFlaggedByML { get; set; }
 

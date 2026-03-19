@@ -7,4 +7,5 @@ public class User
     public string PasswordHash { get; set; } = string.Empty;
     public string? AvatarUrl { get; set; }
     public Role Role { get; set; }
+    public string? Bio { get; set; }
 }

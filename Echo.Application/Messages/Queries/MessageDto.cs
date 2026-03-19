@@ -6,4 +6,5 @@ public record MessageDto(
     string SenderName,
     string Content,
     DateTime SentAt,
-    Guid ChatId);
+    Guid ChatId,
+    string? ImageUrl);
