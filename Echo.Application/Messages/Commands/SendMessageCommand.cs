@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Echo.Application.Messages.Commands;
 
-public record SendMessageCommand(Guid ChatId, string Content) : IRequest<Guid>;
+// Изменили команду: добавили Content и ImageUrl, сделали их nullable
+public record SendMessageCommand(Guid ChatId, string? Content, string? ImageUrl) : IRequest<Guid>;
 
 public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Guid>
 {
@@ -31,7 +32,7 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Gui
     {
         var userId = _currentUserService.UserId;
 
-        // 1. Проверка прав доступа
+        // 1. Проверка прав доступа: состоит ли пользователь в чате
         var isMember = await _context.ChatMembers
             .AnyAsync(cm => cm.ChatId == request.ChatId && cm.UserId == userId, cancellationToken);
 
@@ -40,22 +41,30 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Gui
             throw new UnauthorizedAccessException("Вы не состоите в этом чате!");
         }
 
-        bool isToxic = _moderationService.IsToxic(request.Content);
+        // 2. Логика машинного обучения
+        bool isToxic = false;
 
-        // 2. Создание сообщения
+        // Если текст есть, проверяем его через ML-сервис
+        if (!string.IsNullOrWhiteSpace(request.Content))
+        {
+            isToxic = _moderationService.IsToxic(request.Content);
+        }
+
+        // 3. Создание сущности сообщения
         var message = new Message
         {
             Id = Guid.NewGuid(),
             ChatId = request.ChatId,
             SenderId = userId,
-            Content = request.Content,
+            Content = request.Content ?? "",
+            ImageUrl = request.ImageUrl,
             SentAt = DateTime.UtcNow,
-            IsFlaggedByML = isToxic // Ставим флаг на основе анализа ML
+            IsFlaggedByML = isToxic
         };
 
         _context.Messages.Add(message);
 
-        // 3. Создание алерта для админа (если ML пометил сообщение)
+        // 4. Создание алерта для админа
         if (isToxic)
         {
             var alert = new AdminAlert
@@ -68,12 +77,14 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Gui
             _context.AdminAlerts.Add(alert);
         }
 
-        // 4. Сохранение в базу
+        // 5. Сохранение в базу
         await _context.SaveChangesAsync(cancellationToken);
 
+        // 6. Получаем данные отправителя для SignalR
         var sender = await _context.Users
             .FirstAsync(u => u.Id == userId, cancellationToken);
 
+        // 7. Формируем DTO для отправки клиентам в реальном времени
         var messageDto = new MessageDto(
             message.Id,
             userId,
@@ -81,8 +92,10 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Gui
             message.Content,
             message.SentAt,
             message.ChatId,
-            message.ImageUrl);
+            message.ImageUrl
+        );
 
+        // 8. Отправляем уведомление всем участникам чата
         await _notificationService.NotifyNewMessage(request.ChatId, messageDto);
 
         return message.Id;
